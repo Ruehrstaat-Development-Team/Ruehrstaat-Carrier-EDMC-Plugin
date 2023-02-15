@@ -21,4 +21,4 @@ jobs:
       - name: action-zip
         uses: montudor/action-zip@v1.0.0
         with:
-          args: zip -qq -r ./Ruehrstaat_Systems_Connector.zip ./Ruehrstaat_Systems_connector
+          args: zip -qq -r Ruehrstaat_Systems_Connector.zip Ruehrstaat_Systems_connector
