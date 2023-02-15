@@ -22,3 +22,7 @@ jobs:
         uses: montudor/action-zip@v1.0.0
         with:
           args: zip -qq -r Ruehrstaat_Systems_Connector.zip Ruehrstaat_Systems_connector
+      - name: Push
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Release commit of Deployment Workflow'
