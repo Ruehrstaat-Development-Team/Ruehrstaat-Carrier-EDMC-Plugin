@@ -1,0 +1,13 @@
+name: DeployReleaseZip
+on:
+  pull_request:
+    types: [closed]
+jobs:
+  if_merged:
+    if: github.event.pull_requested.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: action-zip
+        uses: montudor/action-zip@v1.0.0
+        with:
+          args: zip -qq -r Ruehrstaat_Systems_Connector.zip Ruehrstaat_Systems_connector
