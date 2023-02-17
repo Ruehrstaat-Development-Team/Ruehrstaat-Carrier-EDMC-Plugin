@@ -21,7 +21,6 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           message: 'Release commit of Deployment Workflow'
-          commiter-name: Ruehrstaat Development Team
           author-name: Ruehrstaat Development Team
   if_dispatched:
     if: github.event_name == 'workflow_dispatch'
