@@ -20,28 +20,7 @@ jobs:
       - name: Push
         uses: EndBug/add-and-commit@v9
         with:
-          message: 'Release commit of Deployment Workflow'
-          committer_name: Ruehrstaat Development Team
-          committer_email: <>
-          author_name: Ruehrstaat Development Team
-          author_email: <>
-          commit: --signoff
-  if_dispatched:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{secrets.PACKAGE_KEY}}
-          
-      - name: action-zip
-        uses: montudor/action-zip@v1.0.0
-        with:
-          args: zip -qq -r Ruehrstaat_Systems_Connector.zip Ruehrstaat_Systems_connector
-      - name: Push
-        uses: EndBug/add-and-commit@v9
-        with:
-          message: 'Release commit of Deployment Workflow'
+          message: ${{ github.event.pull_request.title }}
           committer_name: Ruehrstaat Development Team
           committer_email: <>
           author_name: Ruehrstaat Development Team
