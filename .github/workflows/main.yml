@@ -22,7 +22,10 @@ jobs:
         with:
           message: 'Release commit of Deployment Workflow'
           committer_name: Ruehrstaat Development Team
+          committer_email: <>
           author_name: Ruehrstaat Development Team
+          author_email: <>
+          commit: --signoff
   if_dispatched:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -40,4 +43,7 @@ jobs:
         with:
           message: 'Release commit of Deployment Workflow'
           committer_name: Ruehrstaat Development Team
+          committer_email: <>
           author_name: Ruehrstaat Development Team
+          author_email: <>
+          commit: --signoff
