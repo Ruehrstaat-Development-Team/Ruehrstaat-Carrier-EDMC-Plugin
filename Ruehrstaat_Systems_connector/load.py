@@ -15,7 +15,7 @@ except ImportError:
 this = sys.modules[__name__]
 this.plugin_name = "RSTAPI"
 this.plugin_url = "https://github.com/MTN-Media-Dev-Team/ruehrstaat_edmc_plugin"
-this.version_info = (0, 1, 2)
+this.version_info = (1, 0, 1)
 this.version = ".".join(map(str, this.version_info))
 this.api_url = "https://api.ruehrstaat.de/api/v1"
 
