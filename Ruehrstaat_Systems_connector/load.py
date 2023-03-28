@@ -14,8 +14,8 @@ except ImportError:
 
 this = sys.modules[__name__]
 this.plugin_name = "RSTAPI"
-this.plugin_url = "https://github.com/MTN-Media-Dev-Team/ruehrstaat_edmc_plugin"
-this.version_info = (1, 0, 1)
+this.plugin_url = "https://github.com/Ruehrstaat-Development-Team/Ruehrstaat-Carrier-EDMC-Plugin"
+this.version_info = (1, 0, 2)
 this.version = ".".join(map(str, this.version_info))
 this.api_url = "https://api.ruehrstaat.de/api/v1"
 
@@ -116,6 +116,7 @@ def journal_entry(cmdr: str, is_beta: bool, system: Optional[str], station: Opti
         put = {
             "id": entry['CarrierID'],
             "access": entry['DockingAccess'],
+            "notorious": entry['AllowNotorious'],
             "source": "edmc",
         }
         with requests.put(this.api_url + '/carrierPermission', json=put, headers=headers) as response:
@@ -141,7 +142,25 @@ def journal_entry(cmdr: str, is_beta: bool, system: Optional[str], station: Opti
                 #log carrier id
                 this.logger.info(f"Carrier ID: { entry['CarrierID'] }")
                 result = f"{this.plugin_name}: Error updating Ruehrstaat API. Check API-Key."
-    # if entry["event"] == "CarrierStats":
-    #     # log full entry for debugging
-    #     this.logger.info(f"CarrierStats entry: { entry }")
+    if entry["event"] == "CarrierStats":
+        put = {
+            "id": entry['CarrierID'],
+            "source": "edmc",
+            "dockingAccess": entry['DockingAccess'],
+            "notorious": entry['AllowNotorious'],
+            "fuel": entry['FuelLevel'],
+            "cargoUsed": entry['SpaceUsage']['TotalCapacity'] - entry['SpaceUsage']['FreeSpace'],
+            "cargoFree": entry['SpaceUsage']['FreeSpace'],
+            "balance": entry['Finance']['CarrierBalance'],
+            "reserveBalance": entry['Finance']['ReserveBalance'],
+            "availableBalance": entry['Finance']['AvailableBalance']
+        }
+        with requests.put(this.api_url + '/carrier', json=put, headers=headers) as response:
+            if response.status_code == 200:
+                this.logger.info(f"{ entry['event']} event posted to Ruehrstaat API")
+            else:
+                this.logger.info(f"{ entry['event']} event posting to Ruehrstaat API failed: { str(response.status_code) } : { response.text }")
+                #log carrier id
+                this.logger.info(f"Carrier ID: { entry['CarrierID'] }")
+                result = f"{this.plugin_name}: Error updating Ruehrstaat API. Check API-Key."
     return result
