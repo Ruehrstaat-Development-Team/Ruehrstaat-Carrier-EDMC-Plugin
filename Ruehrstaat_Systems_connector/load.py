@@ -23,7 +23,7 @@ CONFIG_API_URL = "rstapi_apiurl"
 this = sys.modules[__name__]
 this.plugin_name = "RSTAPI"
 this.plugin_url = "https://github.com/Ruehrstaat-Development-Team/Ruehrstaat-Carrier-EDMC-Plugin"
-this.version_info = (1, 0, 2)
+this.version_info = (1, 0, 3)
 this.version = ".".join(map(str, this.version_info))
 this.rstapi_apiurl = "https://api.ruehrstaat.de/api/v1"
 
