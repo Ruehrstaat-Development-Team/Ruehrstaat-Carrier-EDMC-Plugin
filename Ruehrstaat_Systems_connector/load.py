@@ -4,8 +4,6 @@ import logging
 import tkinter as tk
 import os
 from typing import Tuple, Optional, Dict, Any, Union
-import jwt
-import random as rand
 
 # Prevent linting errors with _() and, hopefully, enable better automaed unit testing in the future
 try:
