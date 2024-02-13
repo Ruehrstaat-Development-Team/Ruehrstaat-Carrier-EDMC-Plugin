@@ -12,14 +12,25 @@ try:
 except ImportError:
     exit()
 
+
+
+
+CONFIG_API_KEY = "rstapi_apikey"
+CONFIG_API_URL = "rstapi_apiurl"
+
 this = sys.modules[__name__]
 this.plugin_name = "RSTAPI"
 this.plugin_url = "https://github.com/Ruehrstaat-Development-Team/Ruehrstaat-Carrier-EDMC-Plugin"
-this.version_info = (1, 0, 2)
+this.version_info = (1, 0, 3)
 this.version = ".".join(map(str, this.version_info))
-this.api_url = "https://api.ruehrstaat.de/api/v1"
+this.rstapi_apiurl = "https://api.ruehrstaat.de/api/v1"
 
-CONFIG_API_KEY = "rstapi_apikey"
+if CONFIG_API_URL == "":
+    this.api_url = this.rstapi_apiurl
+else:
+    this.api_url = CONFIG_API_URL
+
+
 
 # Setup logging
 this.logger = logging.getLogger(f'{appname}.{os.path.basename(os.path.dirname(__file__))}')
@@ -48,9 +59,18 @@ def plugin_prefs(parent: nb.Notebook, cmdr: str, is_beta: bool) -> Optional[tk.F
 
     nb.Label(this.cred_frame, text="Ruerhstaat API credentials", background=nb.Label().cget("background")).grid(row=1, columnspan=2, padx=PADX, sticky=tk.W)
 
-    nb.Label(this.cred_frame, text=_("API Key")).grid(row=12, padx=PADX, sticky=tk.W)
+    nb.Label(this.cred_frame, text=("API Key")).grid(row=12, padx=PADX, sticky=tk.W)
     this.apikey = nb.Entry(this.cred_frame)
-    this.apikey.grid(row=12, column=1, padx=PADX, pady=PADY, sticky=tk.EW)
+    this.apikey.grid(row=12, column=1, padx=PADX, sticky=tk.EW)
+
+    nb.Label(this.cred_frame).grid(sticky=tk.W)   # spacer
+
+    nb.Label(this.cred_frame, text=("API URL")).grid(row=14, padx=PADX, sticky=tk.W)
+    this.api_url_entry = nb.Entry(this.cred_frame)
+    this.api_url_entry.grid(row=14, column=1, padx=PADX, sticky=tk.EW)
+
+  
+
 
     set_state_frame_childs(this.cred_frame, tk.NORMAL)
     this.apikey.delete(0, tk.END)
@@ -58,6 +78,12 @@ def plugin_prefs(parent: nb.Notebook, cmdr: str, is_beta: bool) -> Optional[tk.F
         apikey = config.get_str(CONFIG_API_KEY)
         if apikey:
             this.apikey.insert(0, apikey)
+
+    this.api_url_entry.delete(0, tk.END)
+    if cmdr:
+        api_url = config.get_str(CONFIG_API_URL)
+        if api_url:
+            this.api_url_entry.insert(0, api_url)
 
     if not cmdr or is_beta:
         set_state_frame_childs(this.cred_frame, tk.DISABLED)
@@ -82,9 +108,23 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
         
         config.set(CONFIG_API_KEY, this.apikey.get().strip())
 
+    if cmdr and not is_beta:
+        api_url = config.get_str(CONFIG_API_URL)
+        if api_url:
+            this.logger.info(f"API URL set to {api_url}")
+        if api_url and not api_url.startswith("https://"):
+            api_url = "https://" + api_url
+
+        set_api_url = this.api_url_entry.get().strip()
+        if set_api_url and not set_api_url.startswith("https://"):
+            set_api_url = "https://" + set_api_url
+        config.set(CONFIG_API_URL, set_api_url)
+        
+
 def journal_entry(cmdr: str, is_beta: bool, system: Optional[str], station: Optional[str], entry: Dict[str, Any], stateentry: Dict[str, Any]) -> Optional[str]:
     result = None
     apikey = config.get_str(CONFIG_API_KEY)
+    api_url = config.get_str(CONFIG_API_URL)
     if not apikey:
         this.logger.error("No credentials")
         result = f"{this.plugin_name}: Add credentials."
@@ -104,7 +144,7 @@ def journal_entry(cmdr: str, is_beta: bool, system: Optional[str], station: Opti
                 "type": "cancel",
                 "source": "edmc",
             }
-        with requests.put(this.api_url + '/carrierJump', json=put, headers=headers) as response:
+        with requests.put(api_url + '/carrierJump', json=put, headers=headers) as response:
             if response.status_code == 200:
                 this.logger.info(f"{ entry['event']} event posted to Ruehrstaat API")
             else:
@@ -119,7 +159,7 @@ def journal_entry(cmdr: str, is_beta: bool, system: Optional[str], station: Opti
             "notorious": entry['AllowNotorious'],
             "source": "edmc",
         }
-        with requests.put(this.api_url + '/carrierPermission', json=put, headers=headers) as response:
+        with requests.put(api_url + '/carrierPermission', json=put, headers=headers) as response:
             if response.status_code == 200:
                 this.logger.info(f"{ entry['event']} event posted to Ruehrstaat API")
             else:
@@ -134,7 +174,7 @@ def journal_entry(cmdr: str, is_beta: bool, system: Optional[str], station: Opti
             "service": entry['CrewRole'],
             "source": "edmc",
         }
-        with requests.put(this.api_url + '/carrierService', json=put, headers=headers) as response:
+        with requests.put(api_url + '/carrierService', json=put, headers=headers) as response:
             if response.status_code == 200:
                 this.logger.info(f"{ entry['event']} event posted to Ruehrstaat API")
             else:
@@ -155,7 +195,7 @@ def journal_entry(cmdr: str, is_beta: bool, system: Optional[str], station: Opti
             "reserveBalance": entry['Finance']['ReserveBalance'],
             "availableBalance": entry['Finance']['AvailableBalance']
         }
-        with requests.put(this.api_url + '/carrier', json=put, headers=headers) as response:
+        with requests.put(api_url + '/carrier', json=put, headers=headers) as response:
             if response.status_code == 200:
                 this.logger.info(f"{ entry['event']} event posted to Ruehrstaat API")
             else:
